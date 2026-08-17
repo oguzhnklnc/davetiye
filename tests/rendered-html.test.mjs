@@ -25,6 +25,7 @@ test("davetiyeyi sunucu tarafında doğru içerikle oluşturur", async () => {
   assert.match(html, /24 Ekim 2026/);
   assert.match(html, /Barida Hotel/);
   assert.match(html, /Düğün Davetiyesi/);
+  assert.match(html, /yalnızca düğün organizasyonu ve katılım planlaması amacıyla kullanılacaktır/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape/i);
 });
 

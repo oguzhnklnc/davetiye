@@ -1,13 +1,16 @@
 import { env } from "cloudflare:workers";
 import { cookies } from "next/headers";
 
-const COOKIE_NAME = "davetiye_admin";
-const SESSION_SECONDS = 8 * 60 * 60;
+const SESSION_SECONDS = 4 * 60 * 60;
 type AuthEnv = { ADMIN_USERNAME?: string; ADMIN_PASSWORD?: string; ADMIN_AUTH_SECRET?: string };
 
 function credentials() {
   const values = env as unknown as AuthEnv;
   return { username: values.ADMIN_USERNAME ?? "", password: values.ADMIN_PASSWORD ?? "", secret: values.ADMIN_AUTH_SECRET ?? "" };
+}
+
+function cookieName() {
+  return process.env.NODE_ENV === "production" ? "__Host-davetiye_admin" : "davetiye_admin";
 }
 
 async function digest(value: string) {
@@ -46,16 +49,18 @@ export async function createAdminSession() {
   const payload = `${configured.username}:${expires}`;
   const token = `${expires}.${await signature(payload, configured.secret)}`;
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: SESSION_SECONDS });
+  cookieStore.set(cookieName(), token, { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: SESSION_SECONDS });
 }
 
 export async function isAdminAuthenticated() {
   const configured = credentials();
   if (!configured.secret || !configured.username) return false;
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+  const token = cookieStore.get(cookieName())?.value;
   if (!token) return false;
-  const [expiresText, suppliedSignature] = token.split(".");
+  const tokenParts = token.split(".");
+  if (tokenParts.length !== 2) return false;
+  const [expiresText, suppliedSignature] = tokenParts;
   const expires = Number(expiresText);
   if (!suppliedSignature || !Number.isSafeInteger(expires) || expires <= Math.floor(Date.now() / 1000)) return false;
   const expected = await signature(`${configured.username}:${expires}`, configured.secret);
@@ -64,5 +69,5 @@ export async function isAdminAuthenticated() {
 
 export async function clearAdminSession() {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, "", { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 });
+  cookieStore.set(cookieName(), "", { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 });
 }
