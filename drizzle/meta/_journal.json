@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1786977570547,
+      "tag": "0000_previous_wrecking_crew",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786977594560,
+      "tag": "0001_known_crusher_hogan",
+      "breakpoints": true
+    }
+  ]
+}
