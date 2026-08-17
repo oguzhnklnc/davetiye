@@ -1,7 +1,10 @@
 import { isAdminAuthenticated } from "@/app/admin-auth";
 import { ensureSchema, getDatabase } from "@/db/runtime";
+import { rejectCrossOriginRequest } from "@/app/security";
 
 export async function POST(request: Request) {
+  const originError = rejectCrossOriginRequest(request);
+  if (originError) return originError;
   if (!(await isAdminAuthenticated())) return Response.json({ error: "Yetkisiz erişim." }, { status: 403 });
   const body = await request.json() as { albumUrl?: unknown }; const value = String(body.albumUrl ?? "").trim();
   if (value) { try { const url = new URL(value); if (url.protocol !== "https:") throw new Error(); } catch { return Response.json({ error: "Geçerli bir HTTPS bağlantısı girin." }, { status: 400 }); } }

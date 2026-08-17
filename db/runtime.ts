@@ -34,9 +34,17 @@ export function ensureSchema(): Promise<void> {
         value TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )`),
+      db.prepare(`CREATE TABLE IF NOT EXISTS security_events (
+        id TEXT PRIMARY KEY,
+        event_type TEXT NOT NULL,
+        fingerprint TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      )`),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_rsvps_status ON rsvps(status)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_rsvps_created_at ON rsvps(created_at)"),
       db.prepare("CREATE INDEX IF NOT EXISTS idx_media_links_created_at ON media_links(created_at)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_security_events_lookup ON security_events(event_type, fingerprint, created_at)"),
+      db.prepare("CREATE INDEX IF NOT EXISTS idx_security_events_created_at ON security_events(created_at)"),
     ]);
     await db.prepare("PRAGMA optimize").run();
   })().catch((error) => { schemaReady = null; throw error; });
