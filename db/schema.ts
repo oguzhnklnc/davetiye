@@ -21,3 +21,13 @@ export const settings = sqliteTable("settings", {
   value: text("value").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const securityEvents = sqliteTable("security_events", {
+  id: text("id").primaryKey(),
+  eventType: text("event_type").notNull(),
+  fingerprint: text("fingerprint").notNull(),
+  createdAt: text("created_at").notNull(),
+}, (table) => [
+  index("idx_security_events_lookup").on(table.eventType, table.fingerprint, table.createdAt),
+  index("idx_security_events_created_at").on(table.createdAt),
+]);

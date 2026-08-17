@@ -15,6 +15,13 @@
       "when": 1786977594560,
       "tag": "0001_known_crusher_hogan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786991894229,
+      "tag": "0002_short_kang",
+      "breakpoints": true
     }
   ]
 }

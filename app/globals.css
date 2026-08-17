@@ -104,6 +104,7 @@ h1 b { margin: .18em 0 .2em; color: var(--gold); font-size: .38em; font-style: i
 .submit-button { width: 100%; min-height: 3.2rem; margin-top: 1.4rem; border: 0; border-radius: 999px; color: #2b1b0e; background: var(--gold); font-weight: 750; cursor: pointer; }
 .submit-button:disabled { opacity: .65; cursor: wait; }
 .form-feedback { margin: .85rem 0 0 !important; color: var(--wine) !important; font-size: .85rem; text-align: center; line-height: 1.4; }
+.privacy-note { margin: .25rem 0 1rem; color: var(--muted); font-size: .76rem; line-height: 1.5; }
 .honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; }
 .memories { padding-bottom: 6.5rem; }
 .empty-album { padding: 2rem 1.4rem; color: var(--muted); text-align: center; line-height: 1.55; }
@@ -152,10 +153,13 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 .status-pill.declined { color: #8e3434; background: #f9eaea; }
 .empty-state { padding: 2rem 0; text-align: center; }
 .media-list { display: grid; gap: .6rem; }
-.media-list a { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem; border-radius: .7rem; background: #faf6f0; text-decoration: none; }
+.media-row { display: flex; align-items: center; gap: .6rem; }
+.media-list a { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 1rem; padding: .9rem; border-radius: .7rem; background: #faf6f0; text-decoration: none; }
 .media-list strong, .media-list span { display: block; }
 .media-list span { margin-top: .2rem; color: var(--muted); font-size: .72rem; }
 .media-list b { color: var(--wine); font-size: .78rem; }
+.delete-record { border: 1px solid #d8aeb8; border-radius: 999px; padding: .45rem .7rem; color: #8f203c; background: white; cursor: pointer; font-size: .72rem; font-weight: 700; }
+.delete-record:disabled { cursor: wait; opacity: .55; }
 .admin-empty { max-width: 600px; margin: 15vh auto; padding: 2rem; border-radius: 1rem; background: white; text-align: center; }
 .admin-empty a { color: var(--wine); }
 .admin-login { min-height: 100svh; display: grid; place-items: center; padding: 1.25rem; background: radial-gradient(circle at 50% 15%, rgba(211,160,58,.12), transparent 35%), var(--cream); }
