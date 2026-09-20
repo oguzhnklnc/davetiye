@@ -32,16 +32,16 @@ function database(t) {
 for (const type of ["rsvp", "memory"]) {
   const values = type === "rsvp" ? ["Test Davetli", "attending", 2, ""] : ["Test Davetli", "https://drive.google.com/test"];
   const table = type === "rsvp" ? "rsvps" : "media_links";
-  const payload = () => ({ type, id: crypto.randomUUID(), values, fingerprint: "test", now: "2026-09-20T12:00:00.000Z" });
+  const payload = () => ({ type, id: crypto.randomUUID(), values, fingerprint: "test", networkFingerprint: "shared-network", now: "2026-09-20T12:00:00.000Z" });
 
-  test(`${type}: paralel tekrarlar tek kayıt ve tek güvenlik olayı oluşturur`, async (t) => {
+  test(`${type}: paralel tekrarlar tek kayıt ve her sınır için bir güvenlik olayı oluşturur`, async (t) => {
     const { db, sqlite } = database(t);
     const input = payload();
     const outcomes = await Promise.all(Array.from({ length: 8 }, () => saveSubmission(db, input)));
     assert.equal(outcomes.filter((value) => value === "created").length, 1);
     assert.equal(outcomes.filter((value) => value === "duplicate").length, 7);
     assert.equal(sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n, 1);
-    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM security_events").get().n, 1);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM security_events").get().n, 2);
     assert.equal(await saveSubmission(db, { ...input, values: ["Changed", ...values.slice(1)] }), "conflict");
   });
 

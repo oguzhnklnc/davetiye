@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { ensureSchema, getDatabase } from "@/db/runtime";
 import { evaluateRateLimit, isSameOriginRequest } from "@/app/security-policy.mjs";
+import { getVisitorIdentity } from "@/app/visitor-identity.mjs";
 
 export { isSameOriginRequest } from "@/app/security-policy.mjs";
 
@@ -10,6 +11,10 @@ const encoder = new TextEncoder();
 
 function securitySecret() {
   return (env as unknown as SecurityEnv).ADMIN_AUTH_SECRET ?? "";
+}
+
+export function getSubmissionIdentity(request: Request) {
+  return getVisitorIdentity(request, securitySecret(), { secure: process.env.NODE_ENV === "production" });
 }
 
 export function rejectCrossOriginRequest(request: Request) {

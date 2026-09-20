@@ -1,6 +1,6 @@
 import { ensureSchema, getDatabase } from "@/db/runtime";
-import { getRequestLimit, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
-import { saveSubmission } from "@/db/save-submission.mjs";
+import { getSubmissionIdentity, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
+import { saveSubmission, submissionRetryAfter } from "@/db/save-submission.mjs";
 
 const allowedStatuses = new Set(["attending", "maybe", "declined"]);
 
@@ -23,11 +23,11 @@ export async function POST(request: Request) {
     if (Date.now() > new Date("2026-10-24T19:00:00+03:00").getTime()) return Response.json({ error: "Katılım bildirimi süresi sona erdi." }, { status: 400 });
     await ensureSchema();
     const db = getDatabase();
-    const limit = await getRequestLimit(request, "rsvp_submitted", 5, 60 * 60);
-    const result = await saveSubmission(db, { type: "rsvp", id: submissionId, values: [name, status, guestCount, note], fingerprint: limit.fingerprint });
-    if (result === "limited") return rateLimitResponse(limit.retryAfter || 3600);
-    if (result === "conflict") return Response.json({ error: "Önceki gönderiminiz zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 });
-    return Response.json({ ok: true, duplicate: result === "duplicate" });
+    const identity = await getSubmissionIdentity(request);
+    const result = await saveSubmission(db, { type: "rsvp", id: submissionId, values: [name, status, guestCount, note], fingerprint: identity.fingerprint, networkFingerprint: identity.networkFingerprint });
+    if (result === "limited") return identity.respond(rateLimitResponse(await submissionRetryAfter(db, { type: "rsvp", ...identity })));
+    if (result === "conflict") return identity.respond(Response.json({ error: "Önceki gönderiminiz zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 }));
+    return identity.respond(Response.json({ ok: true, duplicate: result === "duplicate" }));
   } catch {
     return Response.json({ error: "Katılım bildirimi kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
