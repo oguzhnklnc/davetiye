@@ -90,6 +90,7 @@ h1 b { margin: .18em 0 .2em; color: var(--gold); font-size: .38em; font-style: i
 .form-card textarea { min-height: 108px; resize: vertical; }
 .form-card input:focus, .form-card textarea:focus, .link-form input:focus, .album-setting input:focus { border-color: var(--wine); box-shadow: 0 0 0 3px rgba(118,40,61,.1); }
 .form-card fieldset { display: grid; gap: .65rem; margin: 1.6rem 0; border: 0; padding: 0; }
+.form-card .submission-fields, .link-form .submission-fields { display: block; min-width: 0; margin: 0; padding: 0; border: 0; }
 .form-card legend { margin-bottom: .75rem; }
 .choice { min-height: 3.45rem; border: 1px solid var(--line); border-radius: .9rem; color: var(--muted); background: white; cursor: pointer; }
 .choice span { display: inline-block; width: 1.4rem; }
