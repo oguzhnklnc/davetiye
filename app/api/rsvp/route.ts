@@ -32,6 +32,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const bodyError = jsonBodyErrorResponse(error);
     if (bodyError) return bodyError;
+    console.error("rsvp_submission_failed");
     return Response.json({ error: "Katılım bildirimi kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
 }

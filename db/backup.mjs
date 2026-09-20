@@ -8,7 +8,7 @@ const tables = {
 
 export async function exportBackup(db) {
   // A single read transaction gives all sections the same database snapshot.
-  const results = await db.batch(Object.entries(tables).map(([table, columns]) => db.prepare(`SELECT ${columns.join(", ")} FROM ${table} ORDER BY ${columns[0]}`)));
+  const results = await db.batch(Object.entries(tables).map(([table, columns]) => db.prepare(`SELECT ${columns.join(", ")} FROM ${table}${table === "settings" ? " WHERE key IN ('album_url', 'operations_checklist')" : ""} ORDER BY ${columns[0]}`)));
   return validateBackup({ format: "davetiye-backup", version: 1, site: BACKUP_SITE, exported_at: new Date().toISOString(),
     ...Object.fromEntries(Object.keys(tables).map((table, index) => [table, results[index].results])) });
 }

@@ -25,6 +25,7 @@ export function BackupControls() {
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       setFeedback("Şifreli tam yedek indirildi. Parolayı güvenli bir yerde saklayın; parola olmadan yedek açılamaz.");
+      window.dispatchEvent(new Event("davetiye:backup-complete"));
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : "Yedek alınamadı.");
     } finally { setWorking(false); }

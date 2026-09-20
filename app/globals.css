@@ -187,6 +187,29 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 .duplicate-option span, .duplicate-option small { margin-top: .2rem; color: var(--muted); font-size: .72rem; }
 .merge-action { text-align: right; }
 .merge-action .form-feedback { max-width: 200px; margin: .35rem 0 0; font-size: .7rem; }
+.operations-card { display: grid; gap: 1.2rem; }
+.health-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem; }
+.health-item { display: flex; align-items: flex-start; gap: .65rem; padding: .85rem; border: 1px solid #eee3d4; border-radius: .8rem; background: #faf6f0; }
+.health-item strong, .health-item small { display: block; }
+.health-item strong { font-size: .82rem; }
+.health-item small { margin-top: .25rem; color: var(--muted); font-size: .7rem; line-height: 1.35; }
+.health-dot { flex: 0 0 auto; width: .65rem; height: .65rem; margin-top: .2rem; border-radius: 50%; }
+.health-dot.ok { background: #568246; box-shadow: 0 0 0 4px #edf5e9; }
+.health-dot.warn { background: #c17a27; box-shadow: 0 0 0 4px #fff0dc; }
+.operations-summary { display: flex; flex-wrap: wrap; gap: .5rem; }
+.operations-summary span { padding: .4rem .65rem; border-radius: 999px; color: var(--muted); background: #f4eee4; font-size: .72rem; }
+.checklist-heading { display: grid; grid-template-columns: 1fr minmax(140px, 240px); align-items: end; gap: 1rem; padding-top: .2rem; }
+.checklist-heading h3 { margin: 0; font-family: Georgia, serif; font-size: 1.2rem; font-weight: 400; }
+.checklist-heading p { margin: .25rem 0 0; font-size: .75rem; }
+.checklist-progress { height: .5rem; overflow: hidden; border-radius: 999px; background: #eadfce; }
+.checklist-progress span { display: block; height: 100%; border-radius: inherit; background: var(--mustard); transition: width .2s ease; }
+.operations-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+.operations-checklist label { display: flex; align-items: center; gap: .7rem; padding: .75rem .8rem; border: 1px solid #eee3d4; border-radius: .75rem; cursor: pointer; background: white; }
+.operations-checklist label.automatic { cursor: default; background: #faf8f4; }
+.operations-checklist input { width: 1.05rem; height: 1.05rem; accent-color: var(--wine); }
+.operations-checklist span, .operations-checklist small { display: block; }
+.operations-checklist span { font-size: .8rem; }
+.operations-checklist small { margin-top: .15rem; color: var(--muted); font-size: .66rem; }
 .backup-card { display: grid; gap: 1rem; }
 .backup-card > label { color: var(--rust); font-size: .7rem; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
 .backup-card input[type="password"] { width: 100%; margin-top: .5rem; border: 1px solid var(--line); border-radius: .8rem; padding: .9rem 1rem; color: var(--ink); background: white; }
@@ -227,6 +250,8 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
   .album-setting form, .security-controls { flex-direction: column; align-items: stretch; }
   .duplicate-pair { grid-template-columns: 1fr; }
   .duplicate-option { align-items: flex-start; }
+  .health-grid { grid-template-columns: 1fr 1fr; }
+  .operations-checklist { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 430px) {
@@ -243,6 +268,8 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
   .dialog-actions { flex-direction: column-reverse; }
   .duplicate-option { flex-direction: column; }
   .merge-action { width: 100%; text-align: left; }
+  .health-grid { grid-template-columns: 1fr; }
+  .checklist-heading { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }

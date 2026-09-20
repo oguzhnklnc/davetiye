@@ -36,6 +36,16 @@ function common(row) {
   return { id: row.id, name: text(row.name, 2, 100), created_at: date(row.created_at), deleted_at: row.deleted_at == null ? null : date(row.deleted_at) };
 }
 
+function checklist(value) {
+  text(value, 2, 500);
+  let parsed;
+  try { parsed = JSON.parse(value); } catch { fail(); }
+  const keys = ["maps_checked", "qr_checked", "second_device_login_checked"];
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || Object.keys(parsed).some((key) => !keys.includes(key))) fail();
+  if (keys.some((key) => typeof parsed[key] !== "boolean")) fail();
+  return JSON.stringify(Object.fromEntries(keys.map((key) => [key, parsed[key]])));
+}
+
 export function validateBackup(value) {
   if (!value || value.format !== "davetiye-backup" || value.version !== 1 || value.site !== BACKUP_SITE) fail();
   return {
@@ -47,9 +57,9 @@ export function validateBackup(value) {
     }),
     media_links: rows(value.media_links, (row) => ({ ...common(row), url: link(row.url, true) })),
     settings: rows(value.settings, (row) => {
-      if (row.key !== "album_url") fail();
-      return { key: row.key, value: link(row.value), updated_at: date(row.updated_at) };
-    }, 1),
+      if (!['album_url', 'operations_checklist'].includes(row.key)) fail();
+      return { key: row.key, value: row.key === "album_url" ? link(row.value) : checklist(row.value), updated_at: date(row.updated_at) };
+    }, 2),
   };
 }
 

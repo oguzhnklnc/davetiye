@@ -30,6 +30,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const bodyError = jsonBodyErrorResponse(error);
     if (bodyError) return bodyError;
+    console.error("memory_submission_failed");
     return Response.json({ error: "Bağlantı kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
 }

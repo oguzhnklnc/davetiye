@@ -8,6 +8,8 @@ import { SecurityControls } from "./security-controls";
 import { EditRsvpButton } from "./edit-rsvp-button";
 import { MergeRsvpButton } from "./merge-rsvp-button";
 import { findPotentialDuplicatePairs } from "@/app/duplicate-rsvps.mjs";
+import { getOperationalSnapshot } from "@/db/operations.mjs";
+import { OperationsPanel } from "./operations-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +21,11 @@ export default async function AdminPage() {
 
   await ensureSchema();
   const db = getDatabase();
-  const [rsvpResult, mediaResult, setting] = await Promise.all([
+  const [rsvpResult, mediaResult, setting, operationalSnapshot] = await Promise.all([
     db.prepare("SELECT id, name, status, guest_count, note, created_at, deleted_at FROM rsvps ORDER BY created_at DESC").all<Rsvp>(),
     db.prepare("SELECT id, name, url, created_at, deleted_at FROM media_links ORDER BY created_at DESC").all<MediaLink>(),
     db.prepare("SELECT value FROM settings WHERE key = ?").bind("album_url").first<{ value: string }>(),
+    getOperationalSnapshot(db),
   ]);
   const rsvps = rsvpResult.results.filter((item) => !item.deleted_at);
   const media = mediaResult.results.filter((item) => !item.deleted_at);
@@ -46,6 +49,7 @@ export default async function AdminPage() {
         <article><span>Henüz net değil</span><strong>{maybe.length}</strong></article>
         <article><span>Katılamayacak</span><strong>{declined.length}</strong></article>
       </section>
+      <OperationsPanel initialSnapshot={operationalSnapshot} />
       <AdminControls albumUrl={setting?.value ?? ""} />
       <BackupControls />
       <SecurityControls />

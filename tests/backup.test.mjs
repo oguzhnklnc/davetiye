@@ -22,7 +22,8 @@ function sample() {
   return validateBackup({ format: "davetiye-backup", version: 1, site: BACKUP_SITE, exported_at: "2026-09-20T12:00:00.000Z",
     rsvps: [{ id: "12345678-1234-4123-8123-123456789abc", name: "Test Davetli", status: "attending", guest_count: 2, note: "", created_at: "2026-09-20T11:00:00.000Z", deleted_at: null }],
     media_links: [{ id: "22345678-1234-4123-8123-123456789abc", name: "Test Davetli", url: "https://drive.google.com/example", created_at: "2026-09-20T11:05:00.000Z", deleted_at: "2026-09-20T11:10:00.000Z" }],
-    settings: [{ key: "album_url", value: "https://photos.google.com/example", updated_at: "2026-09-20T11:15:00.000Z" }] });
+    settings: [{ key: "album_url", value: "https://photos.google.com/example", updated_at: "2026-09-20T11:15:00.000Z" },
+      { key: "operations_checklist", value: '{"maps_checked":true,"qr_checked":false,"second_device_login_checked":false}', updated_at: "2026-09-20T11:20:00.000Z" }] });
 }
 
 test("tam yedek şifrelenir; doğru parolayla açılır, yanlış parola ve değişiklik reddedilir", async () => {
@@ -34,7 +35,7 @@ test("tam yedek şifrelenir; doğru parolayla açılır, yanlış parola ve değ
   envelope.ciphertext = envelope.ciphertext.slice(0, -2) + "AA";
   await assert.rejects(decryptBackup(JSON.stringify(envelope), "çok-güçlü-yedek-parolası"), /dosya bozulmuş/);
   await assert.rejects(encryptBackup(backup, "kısa"), /12–256/);
-  assert.deepEqual(backupSummary(backup), { rsvps: 1, media: 1, settings: 1, trash: 1 });
+  assert.deepEqual(backupSummary(backup), { rsvps: 1, media: 1, settings: 2, trash: 1 });
 });
 
 test("başka siteye ait veya zararlı içerikli yedek reddedilir", () => {
@@ -43,20 +44,22 @@ test("başka siteye ait veya zararlı içerikli yedek reddedilir", () => {
   assert.throws(() => validateBackup({ ...backup, media_links: [{ ...backup.media_links[0], url: "https://evil.example/a" }] }), /geçersiz/);
   assert.throws(() => validateBackup({ ...backup, rsvps: [backup.rsvps[0], backup.rsvps[0]] }), /geçersiz/);
   assert.throws(() => validateBackup({ ...backup, rsvps: [{ ...backup.rsvps[0], guest_count: 0 }] }), /geçersiz/);
+  assert.throws(() => validateBackup({ ...backup, settings: [{ key: "admin_session_version", value: "secret", updated_at: "2026-09-20T11:15:00.000Z" }] }), /geçersiz/);
 });
 
 test("yedek dışa aktarma ve geri yükleme kayıpsız ve tekrar çalıştırılabilir", async (t) => {
   const source = await database(t);
   const backup = sample();
-  assert.deepEqual(await restoreBackup(source, backup), { rsvps: 1, media: 1, settings: 1 });
+  assert.deepEqual(await restoreBackup(source, backup), { rsvps: 1, media: 1, settings: 2 });
   assert.deepEqual(await restoreBackup(source, backup), { rsvps: 0, media: 0, settings: 0 });
+  await source.prepare("INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?)").bind("admin_session_version", "never-export", "2026-09-20T11:30:00.000Z").run();
   const exported = await exportBackup(source);
   assert.deepEqual({ ...exported, exported_at: backup.exported_at }, backup);
 
   const target = await database(t);
   await target.prepare("INSERT INTO rsvps (id, name, status, guest_count, note, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
     .bind(backup.rsvps[0].id, "Mevcut Kayıt", "maybe", 0, "koru", "2026-09-19T00:00:00.000Z", null).run();
-  assert.deepEqual(await restoreBackup(target, backup), { rsvps: 0, media: 1, settings: 1 });
+  assert.deepEqual(await restoreBackup(target, backup), { rsvps: 0, media: 1, settings: 2 });
   assert.equal(await target.prepare("SELECT name FROM rsvps WHERE id = ?").bind(backup.rsvps[0].id).first("name"), "Mevcut Kayıt");
 });
 
