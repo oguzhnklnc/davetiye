@@ -10,43 +10,12 @@ export function getDatabase(): D1Database {
 
 let schemaReady: Promise<void> | null = null;
 
+// Drizzle migrations own the schema. Runtime only checks readiness.
 export function ensureSchema(): Promise<void> {
-  if (schemaReady) return schemaReady;
-  schemaReady = (async () => {
-    const db = getDatabase();
-    await db.batch([
-      db.prepare(`CREATE TABLE IF NOT EXISTS rsvps (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('attending', 'maybe', 'declined')),
-        guest_count INTEGER NOT NULL DEFAULT 0 CHECK (guest_count >= 0),
-        note TEXT NOT NULL DEFAULT '',
-        created_at TEXT NOT NULL
-      )`),
-      db.prepare(`CREATE TABLE IF NOT EXISTS media_links (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        url TEXT NOT NULL,
-        created_at TEXT NOT NULL
-      )`),
-      db.prepare(`CREATE TABLE IF NOT EXISTS settings (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      )`),
-      db.prepare(`CREATE TABLE IF NOT EXISTS security_events (
-        id TEXT PRIMARY KEY,
-        event_type TEXT NOT NULL,
-        fingerprint TEXT NOT NULL,
-        created_at TEXT NOT NULL
-      )`),
-      db.prepare("CREATE INDEX IF NOT EXISTS idx_rsvps_status ON rsvps(status)"),
-      db.prepare("CREATE INDEX IF NOT EXISTS idx_rsvps_created_at ON rsvps(created_at)"),
-      db.prepare("CREATE INDEX IF NOT EXISTS idx_media_links_created_at ON media_links(created_at)"),
-      db.prepare("CREATE INDEX IF NOT EXISTS idx_security_events_lookup ON security_events(event_type, fingerprint, created_at)"),
-      db.prepare("CREATE INDEX IF NOT EXISTS idx_security_events_created_at ON security_events(created_at)"),
-    ]);
-    await db.prepare("PRAGMA optimize").run();
-  })().catch((error) => { schemaReady = null; throw error; });
-  return schemaReady;
+  return schemaReady ??= getDatabase().batch([
+    getDatabase().prepare("SELECT id, deleted_at FROM rsvps LIMIT 0"),
+    getDatabase().prepare("SELECT id, deleted_at FROM media_links LIMIT 0"),
+    getDatabase().prepare("SELECT key FROM settings LIMIT 0"),
+    getDatabase().prepare("SELECT id FROM security_events LIMIT 0"),
+  ]).then(() => {}).catch((error) => { schemaReady = null; throw error; });
 }

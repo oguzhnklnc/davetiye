@@ -161,6 +161,18 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 .media-list b { color: var(--wine); font-size: .78rem; }
 .delete-record { border: 1px solid #d8aeb8; border-radius: 999px; padding: .45rem .7rem; color: #8f203c; background: white; cursor: pointer; font-size: .72rem; font-weight: 700; }
 .delete-record:disabled { cursor: wait; opacity: .55; }
+.backup-card { display: grid; gap: 1rem; }
+.backup-card > label { color: var(--rust); font-size: .7rem; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
+.backup-card input[type="password"] { width: 100%; margin-top: .5rem; border: 1px solid var(--line); border-radius: .8rem; padding: .9rem 1rem; color: var(--ink); background: white; }
+.backup-actions { display: flex; flex-wrap: wrap; gap: .7rem; }
+.backup-actions input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.backup-actions label { cursor: pointer; }
+.backup-actions .disabled { cursor: wait; opacity: .55; }
+.backup-card small { color: var(--muted); line-height: 1.5; }
+.trash-list { display: grid; gap: .6rem; }
+.trash-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem; border-radius: .7rem; background: #faf6f0; }
+.trash-row strong, .trash-row span { display: block; }
+.trash-row span { margin-top: .2rem; color: var(--muted); font-size: .72rem; }
 .admin-empty { max-width: 600px; margin: 15vh auto; padding: 2rem; border-radius: 1rem; background: white; text-align: center; }
 .admin-empty a { color: var(--wine); }
 .admin-login { min-height: 100svh; display: grid; place-items: center; padding: 1.25rem; background: radial-gradient(circle at 50% 15%, rgba(211,160,58,.12), transparent 35%), var(--cream); }

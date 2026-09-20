@@ -1,25 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useFormRequest } from "@/app/use-form-request";
 
-export function DeleteRecordButton({ id, type, label }: { id: string; type: "rsvp" | "memory"; label: string }) {
-  const [deleting, setDeleting] = useState(false);
-
-  async function remove() {
-    if (!window.confirm(`${label} kaydını kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
-    setDeleting(true);
-    const response = await fetch("/api/admin/records", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, type }),
-    });
-    if (response.ok) window.location.reload();
-    else {
-      const data = await response.json().catch(() => ({}));
-      window.alert(data.error ?? "Kayıt silinemedi.");
-      setDeleting(false);
-    }
+export function DeleteRecordButton({ id, type, label, restore = false }: { id: string; type: "rsvp" | "memory"; label: string; restore?: boolean }) {
+  const { sending, feedback, send } = useFormRequest();
+  async function change() {
+    if (!restore && !window.confirm(`${label} kaydı çöp kutusuna taşınacak. Daha sonra geri alabilirsiniz. Devam edilsin mi?`)) return;
+    if (await send("/api/admin/records", { id, type }, "İşlem tamamlandı.", restore ? "POST" : "DELETE")) window.location.reload();
   }
-
-  return <button className="delete-record" type="button" onClick={remove} disabled={deleting}>{deleting ? "Siliniyor…" : "Sil"}</button>;
+  return <div><button className="delete-record" type="button" onClick={change} disabled={sending}>{sending ? "İşleniyor…" : restore ? "Geri al" : "Çöp kutusuna taşı"}</button>{feedback && <p role="status">{feedback}</p>}</div>;
 }
