@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { Miniflare } from "miniflare";
-import { createAdminSessionToken, verifyAdminSessionToken } from "../app/admin-session.mjs";
+import { adminSessionSigningSecret, createAdminSessionToken, verifyAdminSessionToken } from "../app/admin-session.mjs";
 import { getAdminSessionVersion, revokeAdminSessions } from "../db/admin-session.mjs";
 
 async function database(t) {
@@ -24,6 +24,15 @@ test("yönetici oturumu imza, süre ve sürümle doğrulanır", async () => {
   assert.equal(await verifyAdminSessionToken({ ...values, token, secret: "başka-sır", now: 1_100 }), false);
   assert.equal(await verifyAdminSessionToken({ ...values, token: `${token}x`, now: 1_100 }), false);
   assert.equal(await verifyAdminSessionToken({ ...values, token, now: 1_300 }), false);
+});
+
+test("yönetici parolası değiştiğinde eski oturum imzası geçersiz olur", async () => {
+  const common = { username: "admin", version: "v1", now: 1_000, ttlSeconds: 300 };
+  const oldSecret = adminSessionSigningSecret("uygulama-sırrı", "eski-parola");
+  const newSecret = adminSessionSigningSecret("uygulama-sırrı", "yeni-ve-güçlü-parola");
+  const token = await createAdminSessionToken({ ...common, secret: oldSecret });
+  assert.equal(await verifyAdminSessionToken({ ...common, token, secret: oldSecret, now: 1_100 }), true);
+  assert.equal(await verifyAdminSessionToken({ ...common, token, secret: newSecret, now: 1_100 }), false);
 });
 
 test("tüm oturumları kapatma sürümü değiştirir ve güvenlik kaydı yazar", async (t) => {

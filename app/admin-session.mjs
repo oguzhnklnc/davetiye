@@ -1,5 +1,9 @@
 const DEFAULT_TTL_SECONDS = 4 * 60 * 60;
 
+export function adminSessionSigningSecret(authSecret, password) {
+  return `${String(authSecret).length}:${authSecret}:${String(password).length}:${password}`;
+}
+
 function base64Url(bytes) {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);

@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 import { cookies } from "next/headers";
-import { createAdminSessionToken, verifyAdminSessionToken } from "@/app/admin-session.mjs";
+import { adminSessionSigningSecret, createAdminSessionToken, verifyAdminSessionToken } from "@/app/admin-session.mjs";
 import { getAdminSessionVersion } from "@/db/admin-session.mjs";
 import { ensureSchema, getDatabase } from "@/db/runtime";
 
@@ -39,7 +39,8 @@ export async function createAdminSession() {
   if (!configured.secret || !configured.username) throw new Error("Yönetici ayarları eksik.");
   await ensureSchema();
   const version = await getAdminSessionVersion(getDatabase());
-  const token = await createAdminSessionToken({ username: configured.username, secret: configured.secret, version, ttlSeconds: SESSION_SECONDS });
+  const secret = adminSessionSigningSecret(configured.secret, configured.password);
+  const token = await createAdminSessionToken({ username: configured.username, secret, version, ttlSeconds: SESSION_SECONDS });
   const cookieStore = await cookies();
   cookieStore.set(cookieName(), token, { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production", path: "/", maxAge: SESSION_SECONDS });
 }
@@ -53,7 +54,8 @@ export async function isAdminAuthenticated() {
   try {
     await ensureSchema();
     const version = await getAdminSessionVersion(getDatabase());
-    return verifyAdminSessionToken({ token, username: configured.username, secret: configured.secret, version });
+    const secret = adminSessionSigningSecret(configured.secret, configured.password);
+    return verifyAdminSessionToken({ token, username: configured.username, secret, version });
   } catch { return false; }
 }
 
