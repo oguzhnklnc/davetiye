@@ -1,13 +1,18 @@
 import { createAdminSession, verifyAdminCredentials } from "@/app/admin-auth";
+import { jsonBodyErrorResponse, readJsonBody } from "@/app/request-body.mjs";
 import { getRequestLimit, rateLimitResponse, recordSecurityEvent, rejectCrossOriginRequest } from "@/app/security";
 
 export async function POST(request: Request) {
   const originError = rejectCrossOriginRequest(request);
   if (originError) return originError;
+  let body: Record<string, unknown>;
+  try { body = await readJsonBody(request, 2_048); }
+  catch (error) { return jsonBodyErrorResponse(error) ?? Response.json({ error: "Giriş isteği işlenemedi." }, { status: 400 }); }
   const limit = await getRequestLimit(request, "admin_login_failed", 5, 15 * 60);
   if (!limit.allowed) return rateLimitResponse(limit.retryAfter);
-  const body = await request.json().catch(() => ({})) as { username?: unknown; password?: unknown };
-  const valid = await verifyAdminCredentials(String(body.username ?? ""), String(body.password ?? ""));
+  const username = String(body.username ?? "");
+  const password = String(body.password ?? "");
+  const valid = username.length <= 100 && password.length <= 256 && await verifyAdminCredentials(username, password);
   if (!valid) {
     await recordSecurityEvent("admin_login_failed", limit.fingerprint);
     await new Promise((resolve) => setTimeout(resolve, 450));

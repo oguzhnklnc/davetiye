@@ -1,6 +1,7 @@
 import { ensureSchema, getDatabase } from "@/db/runtime";
 import { getSubmissionIdentity, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
 import { saveSubmission, submissionRetryAfter } from "@/db/save-submission.mjs";
+import { jsonBodyErrorResponse, readJsonBody } from "@/app/request-body.mjs";
 
 const allowedHosts = new Set(["photos.app.goo.gl", "photos.google.com", "drive.google.com", "docs.google.com"]);
 
@@ -8,10 +9,11 @@ export async function POST(request: Request) {
   try {
     const originError = rejectCrossOriginRequest(request);
     if (originError) return originError;
-    const body = await request.json() as Record<string, unknown>;
+    const body = await readJsonBody(request, 4_096) as Record<string, unknown>;
     if (body.website) return Response.json({ ok: true });
     const name = String(body.name ?? "").trim().replace(/\s+/g, " ");
     const rawUrl = String(body.url ?? "").trim();
+    if (rawUrl.length > 2_048) return Response.json({ error: "Bağlantı en fazla 2048 karakter olabilir." }, { status: 400 });
     const suppliedId = String(body.submissionId ?? "");
     const submissionId = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(suppliedId) ? suppliedId : crypto.randomUUID();
     let url: URL;
@@ -25,7 +27,9 @@ export async function POST(request: Request) {
     if (result === "limited") return identity.respond(rateLimitResponse(await submissionRetryAfter(db, { type: "memory", ...identity })));
     if (result === "conflict") return identity.respond(Response.json({ error: "Önceki bağlantınız zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 }));
     return identity.respond(Response.json({ ok: true, duplicate: result === "duplicate" }));
-  } catch {
+  } catch (error) {
+    const bodyError = jsonBodyErrorResponse(error);
+    if (bodyError) return bodyError;
     return Response.json({ error: "Bağlantı kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
 }

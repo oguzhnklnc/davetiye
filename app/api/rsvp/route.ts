@@ -1,6 +1,7 @@
 import { ensureSchema, getDatabase } from "@/db/runtime";
 import { getSubmissionIdentity, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
 import { saveSubmission, submissionRetryAfter } from "@/db/save-submission.mjs";
+import { jsonBodyErrorResponse, readJsonBody } from "@/app/request-body.mjs";
 
 const allowedStatuses = new Set(["attending", "maybe", "declined"]);
 
@@ -8,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const originError = rejectCrossOriginRequest(request);
     if (originError) return originError;
-    const body = await request.json() as Record<string, unknown>;
+    const body = await readJsonBody(request, 4_096) as Record<string, unknown>;
     if (body.website) return Response.json({ ok: true });
     const name = String(body.name ?? "").trim().replace(/\s+/g, " ");
     const status = String(body.status ?? "");
@@ -28,7 +29,9 @@ export async function POST(request: Request) {
     if (result === "limited") return identity.respond(rateLimitResponse(await submissionRetryAfter(db, { type: "rsvp", ...identity })));
     if (result === "conflict") return identity.respond(Response.json({ error: "Önceki gönderiminiz zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 }));
     return identity.respond(Response.json({ ok: true, duplicate: result === "duplicate" }));
-  } catch {
+  } catch (error) {
+    const bodyError = jsonBodyErrorResponse(error);
+    if (bodyError) return bodyError;
     return Response.json({ error: "Katılım bildirimi kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
 }

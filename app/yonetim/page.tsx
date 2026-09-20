@@ -4,6 +4,7 @@ import { AdminControls } from "./admin-controls";
 import { LoginForm, LogoutButton } from "./login-form";
 import { DeleteRecordButton } from "./delete-record-button";
 import { BackupControls } from "./backup-controls";
+import { SecurityControls } from "./security-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,7 @@ export default async function AdminPage() {
       </section>
       <AdminControls albumUrl={setting?.value ?? ""} />
       <BackupControls />
+      <SecurityControls />
       <section className="admin-card">
         <div className="admin-card-heading"><div><h2>Katılım Bildirimleri</h2><p>{rsvps.length} form yanıtı</p></div><a className="button outline dark-outline compact-button" href="/api/admin/export">CSV indir</a></div>
         {rsvps.length ? <div className="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Not</th><th>Tarih</th><th>İşlem</th></tr></thead><tbody>{rsvps.map((item) => <tr key={item.id}><td>{item.name}</td><td><span className={`status-pill ${item.status}`}>{item.status === "attending" ? "Katılıyor" : item.status === "maybe" ? "Henüz net değil" : "Katılamıyor"}</span></td><td>{item.status === "attending" ? item.guest_count : "—"}</td><td>{item.note || "—"}</td><td>{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(item.created_at))}</td><td><DeleteRecordButton id={item.id} type="rsvp" label={item.name} /></td></tr>)}</tbody></table></div> : <p className="empty-state">Henüz katılım bildirimi bulunmuyor.</p>}

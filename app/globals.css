@@ -139,6 +139,10 @@ footer a { display: inline-block; margin-top: 1rem; color: var(--gold); font-siz
 .album-setting form { display: flex; gap: .75rem; margin-top: 1rem; }
 .album-setting input { margin: 0; }
 .album-setting .button { min-width: 120px; }
+.security-controls { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.security-controls p { margin-bottom: 0; }
+.danger-button { flex: 0 0 auto; border: 1px solid #9f2943; background: white; color: #8a1f37; }
+.danger-button:hover { background: #fff3f5; }
 .admin-card h2 { margin: 0; font-size: 1.4rem; }
 .admin-card p { color: var(--muted); }
 .admin-card-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
@@ -198,7 +202,7 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 @media (max-width: 760px) {
   .admin-header { align-items: flex-start; flex-direction: column; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
-  .album-setting form { flex-direction: column; }
+  .album-setting form, .security-controls { flex-direction: column; align-items: stretch; }
 }
 
 @media (max-width: 430px) {
