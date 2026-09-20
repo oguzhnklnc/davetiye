@@ -26,6 +26,12 @@ test("davetiyeyi sunucu tarafında doğru içerikle oluşturur", async () => {
   assert.match(html, /Barida Hotel/);
   assert.match(html, /Düğün Davetiyesi/);
   assert.match(html, /yalnızca düğün organizasyonu ve katılım planlaması amacıyla kullanılacaktır/);
+  assert.match(html, /href="#ana-icerik"[^>]*>Ana içeriğe geç/);
+  assert.match(html, /<main id="ana-icerik">/);
+  assert.match(html, /aria-pressed="true"/);
+  assert.match(html, /aria-current="step"/);
+  assert.match(html, /<label[^>]*for="memory-name"[^>]*>Adınız<\/label>/);
+  assert.match(html, /<label[^>]*for="memory-url"[^>]*>Google Fotoğraflar veya Drive bağlantısı<\/label>/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape/i);
 });
 

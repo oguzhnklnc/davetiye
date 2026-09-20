@@ -7,6 +7,10 @@ body { margin: 0; background: var(--cream); color: var(--ink); font-family: var(
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
+.skip-link { position: fixed; z-index: 1000; top: .75rem; left: .75rem; padding: .7rem 1rem; border-radius: 999px; color: white; background: var(--wine-dark); text-decoration: none; transform: translateY(-180%); transition: transform .15s ease; }
+.skip-link:focus { transform: translateY(0); }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+:where(a, button, input, textarea, select, [tabindex]):focus-visible { outline: 3px solid #147bb8; outline-offset: 3px; }
 .hero { position: relative; min-height: 100svh; display: grid; place-items: center; overflow: hidden; padding: 3rem 1.25rem; color: #fff9ec; background: radial-gradient(circle at 50% 18%, rgba(255,255,255,.08), transparent 35%), linear-gradient(155deg, #843249 0%, var(--wine) 52%, var(--wine-dark) 100%); }
 .grain { position: absolute; inset: 0; opacity: .36; background-image: radial-gradient(rgba(255,255,255,.38) .7px, transparent .7px); background-size: 34px 34px; mask-image: linear-gradient(to bottom, #000, transparent 90%); }
 .hero-leaf { position: absolute; width: 130px; height: 45px; border: 1px solid rgba(211,160,58,.35); border-radius: 100% 0 100% 0; transform: rotate(-18deg); }
@@ -74,9 +78,10 @@ h1 b { margin: .18em 0 .2em; color: var(--gold); font-size: .38em; font-style: i
 .program-symbol { width: 3.9rem; height: 3.9rem; display: grid; place-items: center; margin: .75rem auto; border: 1px solid var(--gold); border-radius: 50%; color: var(--wine); font-size: 1.45rem; }
 .program-slide h4 { margin: .4rem 0 .55rem; font-size: 1.05rem; }
 .program-slide > p:last-child { max-width: 360px; margin-inline: auto; font-size: .82rem; }
-.dots { display: flex; justify-content: center; gap: .45rem; }
-.dots button { width: .4rem; height: .4rem; border: 0; border-radius: 99px; padding: 0; background: #e3d2b8; cursor: pointer; transition: width .2s ease, background .2s ease; }
-.dots button.active { width: 1.25rem; background: var(--wine); }
+.dots { display: flex; justify-content: center; gap: .1rem; }
+.dots button { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 0; border-radius: 50%; padding: 0; background: transparent; cursor: pointer; }
+.dots button::before { width: .4rem; height: .4rem; border-radius: 99px; background: #d4bea0; content: ""; transition: width .2s ease, background .2s ease; }
+.dots button.active::before { width: 1.25rem; background: var(--wine); }
 .utility-card { align-items: flex-start; }
 .utility-card small { display: block; margin-top: .45rem; color: #9a8b6b; line-height: 1.4; }
 .utility-content { flex: 1; min-width: 0; }
@@ -101,6 +106,7 @@ h1 b { margin: .18em 0 .2em; color: var(--gold); font-size: .38em; font-style: i
 .guest-picker { margin: 1.5rem 0; }
 .guest-picker > div { display: flex; align-items: center; gap: 1.4rem; margin-top: .8rem; }
 .guest-picker button { width: 2.8rem; height: 2.8rem; border: 1px solid var(--wine); border-radius: 50%; color: var(--wine); background: transparent; cursor: pointer; font-size: 1.25rem; }
+.guest-picker button:disabled { cursor: not-allowed; opacity: .45; }
 .guest-picker strong { min-width: 1.1rem; text-align: center; font-family: Georgia, serif; font-size: 1.45rem; }
 .submit-button { width: 100%; min-height: 3.2rem; margin-top: 1.4rem; border: 0; border-radius: 999px; color: #2b1b0e; background: var(--gold); font-weight: 750; cursor: pointer; }
 .submit-button:disabled { opacity: .65; cursor: wait; }
@@ -117,6 +123,7 @@ h1 b { margin: .18em 0 .2em; color: var(--gold); font-size: .38em; font-style: i
 .link-form input + input { margin-top: .75rem; }
 .qr-card { display: grid; justify-items: center; gap: 1rem; padding: 1.5rem; text-align: center; }
 .qr-card img { width: 152px; height: 152px; border-radius: .7rem; }
+.info-card, .venue-card, .program-card, .form-card, .link-form, .qr-card, .album-card { overflow-wrap: anywhere; }
 footer { padding: 4.5rem 1.25rem; color: #fff8e9; text-align: center; background: var(--wine-dark); }
 footer .eyebrow { margin-bottom: .8rem; }
 footer h2 { margin: 0; font-size: clamp(2.5rem, 11vw, 4.5rem); }
