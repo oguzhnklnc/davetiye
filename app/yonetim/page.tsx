@@ -5,6 +5,9 @@ import { LoginForm, LogoutButton } from "./login-form";
 import { DeleteRecordButton } from "./delete-record-button";
 import { BackupControls } from "./backup-controls";
 import { SecurityControls } from "./security-controls";
+import { EditRsvpButton } from "./edit-rsvp-button";
+import { MergeRsvpButton } from "./merge-rsvp-button";
+import { findPotentialDuplicatePairs } from "@/app/duplicate-rsvps.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +32,7 @@ export default async function AdminPage() {
   const maybe = rsvps.filter((item) => item.status === "maybe");
   const declined = rsvps.filter((item) => item.status === "declined");
   const guestTotal = attending.reduce((sum, item) => sum + item.guest_count, 0);
+  const duplicatePairs = findPotentialDuplicatePairs(rsvps) as [Rsvp, Rsvp][];
 
   return (
     <main className="admin-shell">
@@ -45,9 +49,15 @@ export default async function AdminPage() {
       <AdminControls albumUrl={setting?.value ?? ""} />
       <BackupControls />
       <SecurityControls />
+      {duplicatePairs.length > 0 && <section className="admin-card duplicate-card">
+        <div className="admin-card-heading"><div><h2>Olası Mükerrer Kayıtlar</h2><p>{duplicatePairs.length} eşleşme · birleştirme kararı size aittir</p></div></div>
+        <div className="duplicate-list">{duplicatePairs.map(([first, second]) => <article className="duplicate-pair" key={`${first.id}-${second.id}`}>
+          {[first, second].map((item, index) => { const other = index === 0 ? second : first; return <div className="duplicate-option" key={item.id}><div><strong>{item.name}</strong><span>{item.status === "attending" ? `${item.guest_count} kişi · Katılıyor` : item.status === "maybe" ? "Henüz net değil" : "Katılamıyor"}</span><small>{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(item.created_at))}</small></div><MergeRsvpButton keepId={item.id} keepName={item.name} removeId={other.id} removeName={other.name} /></div>; })}
+        </article>)}</div>
+      </section>}
       <section className="admin-card">
         <div className="admin-card-heading"><div><h2>Katılım Bildirimleri</h2><p>{rsvps.length} form yanıtı</p></div><a className="button outline dark-outline compact-button" href="/api/admin/export">CSV indir</a></div>
-        {rsvps.length ? <div className="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Not</th><th>Tarih</th><th>İşlem</th></tr></thead><tbody>{rsvps.map((item) => <tr key={item.id}><td>{item.name}</td><td><span className={`status-pill ${item.status}`}>{item.status === "attending" ? "Katılıyor" : item.status === "maybe" ? "Henüz net değil" : "Katılamıyor"}</span></td><td>{item.status === "attending" ? item.guest_count : "—"}</td><td>{item.note || "—"}</td><td>{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(item.created_at))}</td><td><DeleteRecordButton id={item.id} type="rsvp" label={item.name} /></td></tr>)}</tbody></table></div> : <p className="empty-state">Henüz katılım bildirimi bulunmuyor.</p>}
+        {rsvps.length ? <div className="table-wrap"><table><thead><tr><th>Ad Soyad</th><th>Durum</th><th>Kişi</th><th>Not</th><th>Tarih</th><th>İşlem</th></tr></thead><tbody>{rsvps.map((item) => <tr key={item.id}><td>{item.name}</td><td><span className={`status-pill ${item.status}`}>{item.status === "attending" ? "Katılıyor" : item.status === "maybe" ? "Henüz net değil" : "Katılamıyor"}</span></td><td>{item.status === "attending" ? item.guest_count : "—"}</td><td>{item.note || "—"}</td><td>{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date(item.created_at))}</td><td><div className="record-actions"><EditRsvpButton rsvp={item} /><DeleteRecordButton id={item.id} type="rsvp" label={item.name} /></div></td></tr>)}</tbody></table></div> : <p className="empty-state">Henüz katılım bildirimi bulunmuyor.</p>}
       </section>
       <section className="admin-card trash-card">
         <div className="admin-card-heading"><div><h2>Çöp Kutusu</h2><p>{deletedRsvps.length + deletedMedia.length} kayıt · yedeklere dâhildir</p></div></div>
