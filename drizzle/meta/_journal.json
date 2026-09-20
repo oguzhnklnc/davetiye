@@ -22,6 +22,13 @@
       "when": 1786991894229,
       "tag": "0002_short_kang",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789917479189,
+      "tag": "0003_smart_talkback",
+      "breakpoints": true
     }
   ]
 }
