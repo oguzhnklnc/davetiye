@@ -1,5 +1,6 @@
 import { ensureSchema, getDatabase } from "@/db/runtime";
-import { getRequestLimit, rateLimitResponse, recordSecurityEvent, rejectCrossOriginRequest } from "@/app/security";
+import { getRequestLimit, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
+import { saveSubmission } from "@/db/save-submission.mjs";
 
 const allowedHosts = new Set(["photos.app.goo.gl", "photos.google.com", "drive.google.com", "docs.google.com"]);
 
@@ -19,13 +20,11 @@ export async function POST(request: Request) {
     if (url.protocol !== "https:" || !allowedHosts.has(url.hostname.toLocaleLowerCase("en-US"))) return Response.json({ error: "Lütfen bir Google Fotoğraflar veya Google Drive bağlantısı gönderin." }, { status: 400 });
     await ensureSchema();
     const db = getDatabase();
-    const duplicate = await db.prepare("SELECT id FROM media_links WHERE id = ?").bind(submissionId).first<{ id: string }>();
-    if (duplicate) return Response.json({ ok: true, duplicate: true });
     const limit = await getRequestLimit(request, "memory_submitted", 10, 60 * 60);
-    if (!limit.allowed) return rateLimitResponse(limit.retryAfter);
-    await db.prepare("INSERT INTO media_links (id, name, url, created_at) VALUES (?, ?, ?, ?)").bind(submissionId, name, url.toString(), new Date().toISOString()).run();
-    await recordSecurityEvent("memory_submitted", limit.fingerprint);
-    return Response.json({ ok: true });
+    const result = await saveSubmission(db, { type: "memory", id: submissionId, values: [name, url.toString()], fingerprint: limit.fingerprint });
+    if (result === "limited") return rateLimitResponse(limit.retryAfter || 3600);
+    if (result === "conflict") return Response.json({ error: "Önceki bağlantınız zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 });
+    return Response.json({ ok: true, duplicate: result === "duplicate" });
   } catch {
     return Response.json({ error: "Bağlantı kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }

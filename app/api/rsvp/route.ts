@@ -1,5 +1,6 @@
 import { ensureSchema, getDatabase } from "@/db/runtime";
-import { getRequestLimit, rateLimitResponse, recordSecurityEvent, rejectCrossOriginRequest } from "@/app/security";
+import { getRequestLimit, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
+import { saveSubmission } from "@/db/save-submission.mjs";
 
 const allowedStatuses = new Set(["attending", "maybe", "declined"]);
 
@@ -22,13 +23,11 @@ export async function POST(request: Request) {
     if (Date.now() > new Date("2026-10-24T19:00:00+03:00").getTime()) return Response.json({ error: "Katılım bildirimi süresi sona erdi." }, { status: 400 });
     await ensureSchema();
     const db = getDatabase();
-    const duplicate = await db.prepare("SELECT id FROM rsvps WHERE id = ?").bind(submissionId).first<{ id: string }>();
-    if (duplicate) return Response.json({ ok: true, duplicate: true });
     const limit = await getRequestLimit(request, "rsvp_submitted", 5, 60 * 60);
-    if (!limit.allowed) return rateLimitResponse(limit.retryAfter);
-    await db.prepare("INSERT INTO rsvps (id, name, status, guest_count, note, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(submissionId, name, status, guestCount, note, new Date().toISOString()).run();
-    await recordSecurityEvent("rsvp_submitted", limit.fingerprint);
-    return Response.json({ ok: true });
+    const result = await saveSubmission(db, { type: "rsvp", id: submissionId, values: [name, status, guestCount, note], fingerprint: limit.fingerprint });
+    if (result === "limited") return rateLimitResponse(limit.retryAfter || 3600);
+    if (result === "conflict") return Response.json({ error: "Önceki gönderiminiz zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 });
+    return Response.json({ ok: true, duplicate: result === "duplicate" });
   } catch {
     return Response.json({ error: "Katılım bildirimi kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
