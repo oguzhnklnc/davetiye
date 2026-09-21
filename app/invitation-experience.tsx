@@ -5,6 +5,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Countdown } from "./countdown";
 import { useFormRequest } from "./use-form-request";
+import { fallbackWeather, fetchLiveWeather } from "./weather.mjs";
 
 const address = "Bahçelievler, Süleyman Demirel Caddesi No: 81, 32040 Merkez/Isparta";
 const mapsQuery = encodeURIComponent(`Barida Hotel, ${address}`);
@@ -21,7 +22,7 @@ const program = [
   { time: "21.00", title: "Eğlence", symbol: "✦", note: "Müzik, dans ve güzel anılarla geceye devam ediyoruz." },
 ];
 
-type Weather = { mode: "wedding" | "current"; title: string; summary: string; detail: string };
+type Weather = { mode: "wedding" | "current"; source: "open-meteo" | "seasonal-fallback"; title: string; summary: string; detail: string };
 
 export function InvitationExperience() {
   const [programIndex, setProgramIndex] = useState(0);
@@ -30,8 +31,25 @@ export function InvitationExperience() {
   const programRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch("/api/weather").then((r) => r.json()).then(setWeather).catch(() => null);
+    let active = true;
+    async function loadWeather() {
+      try {
+        const live = await fetchLiveWeather();
+        if (active) setWeather(live as Weather);
+        return;
+      } catch {
+        try {
+          const response = await fetch("/api/weather");
+          if (!response.ok) throw new Error("weather");
+          if (active) setWeather(await response.json() as Weather);
+        } catch {
+          if (active) setWeather(fallbackWeather() as Weather);
+        }
+      }
+    }
+    void loadWeather();
     fetch("/api/settings").then((r) => r.json()).then((data) => setAlbumUrl(data.albumUrl ?? null)).catch(() => null);
+    return () => { active = false; };
   }, []);
 
   function goToProgram(index: number) {
