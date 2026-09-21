@@ -11,6 +11,7 @@
     "start": "vinext start",
     "test": "npm run build && node --experimental-sqlite --test --test-concurrency=1 tests/*.test.mjs",
     "test:recovery": "node scripts/recovery-drill.mjs",
+    "test:http-load": "npm run build && node scripts/http-load-test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
