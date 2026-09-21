@@ -219,11 +219,16 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 .operations-checklist small { margin-top: .15rem; color: var(--muted); font-size: .66rem; }
 .backup-card { display: grid; gap: 1rem; }
 .backup-card > label { color: var(--rust); font-size: .7rem; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
-.backup-card input[type="password"] { width: 100%; margin-top: .5rem; border: 1px solid var(--line); border-radius: .8rem; padding: .9rem 1rem; color: var(--ink); background: white; }
+.backup-card > label > input[type="password"], .backup-card > label > input[type="text"] { width: 100%; margin-top: .5rem; border: 1px solid var(--line); border-radius: .8rem; padding: .9rem 1rem; color: var(--ink); background: white; }
 .backup-actions { display: flex; flex-wrap: wrap; gap: .7rem; }
-.backup-actions input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.backup-actions label { cursor: pointer; }
-.backup-actions .disabled { cursor: wait; opacity: .55; }
+.backup-restore { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; padding-top: .2rem; }
+.backup-restore input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.backup-restore label { cursor: pointer; }
+.backup-restore .disabled { cursor: wait; opacity: .55; }
+.backup-restore span { max-width: 100%; overflow: hidden; color: var(--muted); font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; }
+.backup-password-toggle { display: inline-flex !important; align-items: center; gap: .5rem; width: fit-content; color: var(--muted) !important; font-size: .85rem !important; font-weight: 500 !important; letter-spacing: 0 !important; text-transform: none !important; }
+.backup-password-toggle input { width: 1rem; height: 1rem; accent-color: var(--burgundy); }
+.download-ready { background: #466b3b; color: white; border-color: #466b3b; }
 .backup-card small { color: var(--muted); line-height: 1.5; }
 .trash-list { display: grid; gap: .6rem; }
 .trash-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem; border-radius: .7rem; background: #faf6f0; }
