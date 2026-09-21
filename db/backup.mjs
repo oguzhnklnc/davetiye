@@ -16,11 +16,18 @@ export async function exportBackup(db) {
 export async function restoreBackup(db, input) {
   const backup = validateBackup(input);
   // Parameterized JSON imports keep the entire restore in three D1 statements.
-  // Existing rows (including trash) always win, so a retry is harmless.
-  const results = await db.batch(Object.entries(tables).map(([table, columns]) => db.prepare(
-    `INSERT INTO ${table} (${columns.join(", ")})
-     SELECT ${columns.map((column) => `json_extract(value, '$.${column}')`).join(", ")}
-     FROM json_each(?) WHERE 1 ON CONFLICT(${columns[0]}) DO NOTHING`,
-  ).bind(JSON.stringify(backup[table]))));
+  // Rows present in the backup return to their captured state. Rows created after
+  // the backup are retained, and identical retries remain no-ops.
+  const results = await db.batch(Object.entries(tables).map(([table, columns]) => {
+    const mutable = columns.slice(1);
+    const assignments = mutable.map((column) => `${column} = excluded.${column}`).join(", ");
+    const differences = mutable.map((column) => `${table}.${column} IS NOT excluded.${column}`).join(" OR ");
+    return db.prepare(
+      `INSERT INTO ${table} (${columns.join(", ")})
+       SELECT ${columns.map((column) => `json_extract(value, '$.${column}')`).join(", ")}
+       FROM json_each(?) WHERE 1
+       ON CONFLICT(${columns[0]}) DO UPDATE SET ${assignments} WHERE ${differences}`,
+    ).bind(JSON.stringify(backup[table]));
+  }));
   return { rsvps: Number(results[0].meta.changes), media: Number(results[1].meta.changes), settings: Number(results[2].meta.changes) };
 }

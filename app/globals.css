@@ -172,6 +172,7 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 .media-list b { color: var(--wine); font-size: .78rem; }
 .delete-record { border: 1px solid #d8aeb8; border-radius: 999px; padding: .45rem .7rem; color: #8f203c; background: white; cursor: pointer; font-size: .72rem; font-weight: 700; }
 .delete-record:disabled { cursor: wait; opacity: .55; }
+.delete-record.permanent-delete { border-color: #9f1239; color: white; background: #9f1239; }
 .record-actions { display: flex; flex-wrap: wrap; gap: .45rem; min-width: 170px; }
 .record-action { border: 1px solid #c6ad80; border-radius: 999px; padding: .45rem .7rem; color: #5e431d; background: #fffaf1; cursor: pointer; font-size: .72rem; font-weight: 700; }
 .record-action:disabled { cursor: wait; opacity: .55; }

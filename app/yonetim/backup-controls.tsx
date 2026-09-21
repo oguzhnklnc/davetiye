@@ -47,12 +47,12 @@ export function BackupControls() {
     try {
       const backup = await decryptBackup(await restoreFile.text(), password);
       const summary = backupSummary(backup);
-      const approved = window.confirm(`Yedekte ${summary.rsvps} LCV, ${summary.media} galeri bağlantısı ve ${summary.trash} çöp kaydı var. Yalnızca eksik kayıtlar eklenecek; mevcut kayıtlar değişmeyecek. Devam edilsin mi?`);
+      const approved = window.confirm(`Yedekte ${summary.rsvps} LCV, ${summary.media} galeri bağlantısı ve ${summary.trash} çöp kaydı var. Yedekte bulunan kayıtlar yedeğin alındığı durumlarına dönecek; yedekte bulunmayan yeni kayıtlar korunacak. Devam edilsin mi?`);
       if (!approved) { setFeedback("Geri yükleme iptal edildi."); return; }
       const response = await fetch("/api/admin/backup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(backup) });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error ?? "Geri yükleme tamamlanamadı.");
-      setFeedback(`${data.added.rsvps} LCV, ${data.added.media} galeri bağlantısı ve ${data.added.settings} ayar eklendi.`);
+      setFeedback(`${data.added.rsvps} LCV, ${data.added.media} galeri bağlantısı ve ${data.added.settings} ayar yedekten uygulandı.`);
       setRestoreFile(null);
       window.setTimeout(() => window.location.reload(), 1200);
     } catch (error) {

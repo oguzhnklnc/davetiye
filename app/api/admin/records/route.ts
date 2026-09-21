@@ -1,7 +1,7 @@
 import { isAdminAuthenticated } from "@/app/admin-auth";
 import { rejectCrossOriginRequest } from "@/app/security";
 import { ensureSchema, getDatabase } from "@/db/runtime";
-import { changeTrashState } from "@/db/trash.mjs";
+import { changeTrashState, permanentlyDeleteTrashRecord } from "@/db/trash.mjs";
 import { jsonBodyErrorResponse, readJsonBody } from "@/app/request-body.mjs";
 import { mergeRsvps, updateRsvp } from "@/db/rsvp-management.mjs";
 
@@ -15,10 +15,14 @@ async function change(request: Request, restore: boolean) {
   catch (error) { return jsonBodyErrorResponse(error) ?? Response.json({ error: "İstek işlenemedi." }, { status: 400, headers }); }
   const id = String(body?.id ?? "");
   const type = String(body?.type ?? "");
+  const permanent = body?.permanent === true;
   if (!/^[0-9a-f-]{36}$/i.test(id) || !["rsvp", "memory"].includes(type)) return Response.json({ error: "Geçersiz kayıt." }, { status: 400, headers });
   try {
     await ensureSchema();
-    await changeTrashState(getDatabase(), { type, id, restore });
+    const changed = permanent
+      ? await permanentlyDeleteTrashRecord(getDatabase(), { type, id })
+      : await changeTrashState(getDatabase(), { type, id, restore });
+    if (!changed) return Response.json({ error: permanent ? "Kayıt çöp kutusunda bulunamadı." : "Kayıt bulunamadı veya zaten güncel durumda." }, { status: 404, headers });
     return Response.json({ ok: true }, { headers });
   } catch {
     console.error("trash_operation_failed");

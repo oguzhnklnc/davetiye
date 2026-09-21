@@ -5,7 +5,7 @@ import { Miniflare } from "miniflare";
 import { decryptBackup, encryptBackup } from "../app/backup-crypto.mjs";
 import { BACKUP_SITE, backupSummary, validateBackup } from "../app/backup-format.mjs";
 import { exportBackup, restoreBackup } from "../db/backup.mjs";
-import { changeTrashState } from "../db/trash.mjs";
+import { changeTrashState, permanentlyDeleteTrashRecord } from "../db/trash.mjs";
 
 async function database(t) {
   const runtime = new Miniflare({ modules: true, script: "export default { fetch() { return new Response('test'); } };", compatibilityDate: "2026-05-22", d1Databases: ["DB"] });
@@ -75,8 +75,8 @@ test("yedek dışa aktarma ve geri yükleme kayıpsız ve tekrar çalıştırıl
   const target = await database(t);
   await target.prepare("INSERT INTO rsvps (id, name, status, guest_count, note, created_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
     .bind(backup.rsvps[0].id, "Mevcut Kayıt", "maybe", 0, "koru", "2026-09-19T00:00:00.000Z", null).run();
-  assert.deepEqual(await restoreBackup(target, backup), { rsvps: 0, media: 1, settings: 2 });
-  assert.equal(await target.prepare("SELECT name FROM rsvps WHERE id = ?").bind(backup.rsvps[0].id).first("name"), "Mevcut Kayıt");
+  assert.deepEqual(await restoreBackup(target, backup), { rsvps: 1, media: 1, settings: 2 });
+  assert.equal(await target.prepare("SELECT name FROM rsvps WHERE id = ?").bind(backup.rsvps[0].id).first("name"), "Test Davetli");
 });
 
 test("silinen kayıt çöp kutusuna taşınır ve geri alınabilir", async (t) => {
@@ -90,6 +90,27 @@ test("silinen kayıt çöp kutusuna taşınır ve geri alınabilir", async (t) =
   assert.equal(await changeTrashState(db, { type: "rsvp", id, restore: true, now: "2026-09-20T13:02:00.000Z" }), 1);
   assert.equal(await db.prepare("SELECT deleted_at FROM rsvps WHERE id = ?").bind(id).first("deleted_at"), null);
   assert.equal(await db.prepare("SELECT COUNT(*) AS n FROM security_events WHERE event_type LIKE 'admin_%'").first("n"), 2);
+});
+
+test("yedek, sonradan çöp kutusuna taşınan kaydı yeniden etkinleştirir", async (t) => {
+  const db = await database(t);
+  const backup = sample();
+  await restoreBackup(db, backup);
+  await changeTrashState(db, { type: "rsvp", id: backup.rsvps[0].id, now: "2026-09-20T13:00:00.000Z" });
+  assert.deepEqual(await restoreBackup(db, backup), { rsvps: 1, media: 0, settings: 0 });
+  assert.equal(await db.prepare("SELECT deleted_at FROM rsvps WHERE id = ?").bind(backup.rsvps[0].id).first("deleted_at"), null);
+});
+
+test("çöp kutusundaki kayıt kalıcı silinir ve işlem denetlenir", async (t) => {
+  const db = await database(t);
+  const backup = sample();
+  await restoreBackup(db, backup);
+  const id = backup.rsvps[0].id;
+  await changeTrashState(db, { type: "rsvp", id, now: "2026-09-20T13:00:00.000Z" });
+  assert.equal(await permanentlyDeleteTrashRecord(db, { type: "rsvp", id, now: "2026-09-20T13:01:00.000Z" }), 1);
+  assert.equal(await permanentlyDeleteTrashRecord(db, { type: "rsvp", id, now: "2026-09-20T13:02:00.000Z" }), 0);
+  assert.equal(await db.prepare("SELECT COUNT(*) AS n FROM rsvps WHERE id = ?").bind(id).first("n"), 0);
+  assert.equal(await db.prepare("SELECT COUNT(*) AS n FROM security_events WHERE event_type = 'admin_permanently_deleted_rsvp'").first("n"), 1);
 });
 
 test("geri yükleme veya işlem kaydı hata verirse tüm değişiklik geri alınır", async (t) => {

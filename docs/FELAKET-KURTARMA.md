@@ -12,7 +12,7 @@ Bu prosedür LCV kayıtlarını, galeri bağlantılarını, albüm ayarını, op
 
 1. Yönetim panelindeki **Tam Yedek** bölümünü açın.
 2. En az 12 karakterli, yalnızca yedek için kullanılan bir parola yazın.
-3. **Şifreli Yedek İndir** düğmesine basın.
+3. **Şifreli Yedek Hazırla** düğmesine, ardından **Hazır Yedeği İndir** bağlantısına basın.
 4. İndirilen `.davetiye-backup` dosyasını iki ayrı yerde saklayın: biri kişisel bulut depolama alanı, diğeri yerel bilgisayar veya USB bellek olabilir.
 5. Yedek parolasını dosyayla aynı klasörde tutmayın; bir parola yöneticisinde saklayın.
 6. Yönetim panelinde “Yedek güncel” durumunun göründüğünü kontrol edin.
@@ -23,12 +23,14 @@ Normal dönemde haftalık, düğünden önceki son yedi gün içinde günlük ve
 
 1. Sorunlu sitede işlem yapmadan önce mümkünse mevcut durumun yeni bir yedeğini alın.
 2. Doğru siteyi ve doğru tarihli yedek dosyasını kullandığınızı doğrulayın.
-3. Yönetim panelinde yedek parolasını yazın ve **Yedeği Geri Yükle** seçeneğinden dosyayı seçin.
+3. Yönetim panelinde yedek parolasını yazın, **Yedek Dosyasını Seç** seçeneğinden dosyayı seçin ve **Seçilen Yedeği Geri Yükle** düğmesine basın.
 4. Ekrandaki LCV, galeri ve çöp kutusu sayılarını kontrol edip işlemi onaylayın.
 5. Geri yükleme tamamlandıktan sonra sistem durumunu yenileyin; toplam LCV, katılımcı, galeri ve çöp kutusu sayılarını yedek özetiyle karşılaştırın.
 6. En az bir LCV kaydını, albüm bağlantısını ve çöp kutusundan geri alma işlemini kontrol edin.
 
-Geri yükleme eklemeli ve tekrar çalıştırılabilir yapıdadır: mevcut kayıtlar değiştirilmez, yalnızca eksik kayıtlar eklenir. Yanlış parola, değiştirilmiş dosya veya başka siteye ait yedek kabul edilmez.
+Geri yükleme birleştirmeli ve tekrar çalıştırılabilir yapıdadır: yedekte bulunan kayıtlar yedeğin alındığı duruma döner, yedekten sonra oluşturulmuş kayıtlar korunur. Bu nedenle yedek alındıktan sonra çöp kutusuna taşınmış bir kayıt geri yüklemeyle yeniden etkinleşir. Yanlış parola, değiştirilmiş dosya veya başka siteye ait yedek kabul edilmez.
+
+Çöp kutusundaki **Kalıcı sil** işlemi canlı veritabanındaki kaydı geri alınamaz biçimde kaldırır. Daha önce indirilmiş bir yedek bu kaydı hâlâ içeriyorsa o yedek geri yüklendiğinde kayıt yeniden oluşabilir; kişisel verinin tüm kopyalardan kaldırılması gerekiyorsa eski yedek dosyalarını da saklandıkları yerlerden silin.
 
 ## Sorun durumunda
 
