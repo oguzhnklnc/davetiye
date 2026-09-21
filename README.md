@@ -40,6 +40,14 @@ npm run build
 npm test
 ```
 
+Canlı veriye dokunmadan şifreli yedek ve geri yükleme tatbikatı:
+
+```bash
+npm run test:recovery
+```
+
+Acil durum adımları ve yedek saklama sıklığı için [felaket kurtarma prosedürüne](docs/FELAKET-KURTARMA.md) bakın.
+
 Veritabanı şeması değiştiğinde:
 
 ```bash
