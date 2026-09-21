@@ -32,7 +32,8 @@ test("tam yedek şifrelenir; doğru parolayla açılır, yanlış parola ve değ
   assert.deepEqual(await decryptBackup(encrypted, "çok-güçlü-yedek-parolası"), backup);
   await assert.rejects(decryptBackup(encrypted, "yanlış-bir-parola"), /Parola yanlış/);
   const envelope = JSON.parse(encrypted);
-  envelope.ciphertext = envelope.ciphertext.slice(0, -2) + "AA";
+  const replacement = envelope.ciphertext[0] === "A" ? "B" : "A";
+  envelope.ciphertext = replacement + envelope.ciphertext.slice(1);
   await assert.rejects(decryptBackup(JSON.stringify(envelope), "çok-güçlü-yedek-parolası"), /dosya bozulmuş/);
   await assert.rejects(encryptBackup(backup, "kısa"), /12–256/);
   assert.deepEqual(backupSummary(backup), { rsvps: 1, media: 1, settings: 2, trash: 1 });

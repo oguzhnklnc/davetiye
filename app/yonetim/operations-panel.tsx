@@ -53,6 +53,10 @@ export function OperationsPanel({ initialSnapshot }: { initialSnapshot: Snapshot
     { key: "maybe", label: "Henüz net olmayan yanıtları sonuçlandır", done: snapshot.maybeResponses === 0, automatic: true },
     { key: "maps_checked", label: "Harita bağlantılarını telefondan kontrol et", done: snapshot.checklist.maps_checked, automatic: false },
     { key: "qr_checked", label: "Masa QR kodunu gerçek bir telefonla okut", done: snapshot.checklist.qr_checked, automatic: false },
+    { key: "calendar_checked", label: ".ics dosyasını telefona ekleyip tarih ve saati doğrula", done: snapshot.checklist.calendar_checked, automatic: false },
+    { key: "live_forms_checked", label: "LCV ve galeri deneme kayıtlarını panelde doğrula", done: snapshot.checklist.live_forms_checked, automatic: false },
+    { key: "iphone_safari_checked", label: "Davetiyeyi iPhone ve Safari ile kontrol et", done: snapshot.checklist.iphone_safari_checked, automatic: false },
+    { key: "android_chrome_checked", label: "Davetiyeyi Android ve Chrome ile kontrol et", done: snapshot.checklist.android_chrome_checked, automatic: false },
     { key: "second_device_login_checked", label: "Yönetici girişini ikinci bir cihazda dene", done: snapshot.checklist.second_device_login_checked, automatic: false },
   ];
 

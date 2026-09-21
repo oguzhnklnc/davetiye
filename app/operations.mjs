@@ -1,5 +1,13 @@
 export const WEDDING_TIME = "2026-10-24T19:00:00+03:00";
-export const MANUAL_CHECKLIST_KEYS = ["maps_checked", "qr_checked", "second_device_login_checked"];
+export const MANUAL_CHECKLIST_KEYS = [
+  "maps_checked",
+  "qr_checked",
+  "calendar_checked",
+  "live_forms_checked",
+  "iphone_safari_checked",
+  "android_chrome_checked",
+  "second_device_login_checked",
+];
 
 export function parseChecklist(value) {
   try {

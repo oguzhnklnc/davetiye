@@ -17,6 +17,11 @@ export async function GET() {
     }
     return Response.json({ mode: "current", title: `${descriptions[data.current.weather_code] ?? "Güncel"} · ${Math.round(data.current.temperature_2m)}°C`, summary: `Isparta'da şu an hissedilen sıcaklık ${Math.round(data.current.apparent_temperature)}°C.`, detail: "Düğün tarihi tahmin aralığına girdiğinde bu alanda 24 Ekim tahmini gösterilecek." });
   } catch {
-    return Response.json({ mode: "current", title: "Hava bilgisi alınamadı", summary: "Güncel tahmin kısa süre içinde yeniden denenecek.", detail: "" }, { status: 503 });
+    return Response.json({
+      mode: "current",
+      title: "Mevsim normali · yaklaşık 16°C",
+      summary: "Canlı hava verisine şu anda ulaşılamadı; Isparta'nın ekim sonu ortalamasına dayalı yaklaşık değer gösteriliyor.",
+      detail: "Canlı tahmin bağlantısı sonraki ziyarette otomatik olarak yeniden denenecek.",
+    });
   }
 }

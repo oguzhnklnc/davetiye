@@ -24,7 +24,15 @@ test("yedek güncelliği düğün yaklaştığında günlük olarak değerlendir
 });
 
 test("bozuk kontrol listesi güvenli varsayılanlara döner", () => {
-  assert.deepEqual(parseChecklist("bozuk"), { maps_checked: false, qr_checked: false, second_device_login_checked: false });
+  assert.deepEqual(parseChecklist("bozuk"), {
+    maps_checked: false,
+    qr_checked: false,
+    calendar_checked: false,
+    live_forms_checked: false,
+    iphone_safari_checked: false,
+    android_chrome_checked: false,
+    second_device_login_checked: false,
+  });
 });
 
 test("operasyon özeti, yedek ve bütünlük durumunu doğru hesaplar", async (t) => {
@@ -46,13 +54,21 @@ test("operasyon özeti, yedek ve bütünlük durumunu doğru hesaplar", async (t
   assert.equal(snapshot.backup.status, "current");
   assert.equal(snapshot.failedLogins24h, 1);
   assert.equal(snapshot.invalidRecords, 0);
-  assert.deepEqual(checklistProgress(snapshot), { complete: 2, total: 7 });
+  assert.deepEqual(checklistProgress(snapshot), { complete: 2, total: 11 });
 });
 
 test("elle onaylanan kontrol maddeleri kalıcı ve denetlenebilir olur", async (t) => {
   const db = await database(t);
   const checklist = await saveOperationsChecklist(db, { maps_checked: true, qr_checked: true, ignored: true }, "2026-09-20T13:00:00.000Z");
-  assert.deepEqual(checklist, { maps_checked: true, qr_checked: true, second_device_login_checked: false });
+  assert.deepEqual(checklist, {
+    maps_checked: true,
+    qr_checked: true,
+    calendar_checked: false,
+    live_forms_checked: false,
+    iphone_safari_checked: false,
+    android_chrome_checked: false,
+    second_device_login_checked: false,
+  });
   const snapshot = await getOperationalSnapshot(db, Date.parse("2026-09-20T14:00:00.000Z"));
   assert.deepEqual(snapshot.checklist, checklist);
   assert.equal(await db.prepare("SELECT COUNT(*) AS n FROM security_events WHERE event_type = 'admin_operations_checklist_updated'").first("n"), 1);

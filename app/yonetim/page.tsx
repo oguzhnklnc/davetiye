@@ -1,4 +1,5 @@
 import { isAdminAuthenticated } from "@/app/admin-auth";
+import Link from "next/link";
 import { ensureSchema, getDatabase } from "@/db/runtime";
 import { AdminControls } from "./admin-controls";
 import { LoginForm, LogoutButton } from "./login-form";
@@ -41,7 +42,7 @@ export default async function AdminPage() {
     <main className="admin-shell">
       <header className="admin-header">
         <div><p className="eyebrow dark">Özdil &amp; Hüseyin</p><h1>Yönetici Paneli</h1><p>Hoş geldiniz.</p></div>
-        <div className="admin-actions"><a href="/">Davetiyeyi aç</a><LogoutButton /></div>
+        <div className="admin-actions"><Link href="/">Davetiyeyi aç</Link><LogoutButton /></div>
       </header>
       <section className="stat-grid">
         <article><span>Toplam katılımcı</span><strong>{guestTotal}</strong></article>

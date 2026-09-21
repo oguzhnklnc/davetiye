@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- QR kodu dinamik API yanıtıdır ve sabit boyutlarla sunulur. */
+
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Countdown } from "./countdown";
 import { useFormRequest } from "./use-form-request";
@@ -86,7 +88,7 @@ export function InvitationExperience() {
 
           <article className="program-card">
             <h3>Etkinlik Programı</h3><Ornament compact />
-            <div className="program-slider" ref={programRef} role="region" aria-label="Etkinlik programı" tabIndex={0} onKeyDown={(event) => { if (event.key === "ArrowRight") goToProgram(Math.min(program.length - 1, programIndex + 1)); if (event.key === "ArrowLeft") goToProgram(Math.max(0, programIndex - 1)); }} onScroll={(e) => setProgramIndex(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}>
+            <div className="program-slider" ref={programRef} role="region" aria-label="Etkinlik programı" onScroll={(e) => setProgramIndex(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}>
               {program.map((item, index) => <div className="program-slide" key={item.time} aria-label={`${index + 1} / ${program.length}: ${item.time} ${item.title}`}><p className="program-time">{item.time}</p><div className="program-symbol" aria-hidden="true">{item.symbol}</div><h4>{item.title}</h4><p>{item.note}</p></div>)}
             </div>
             <div className="dots" aria-label="Program adımları">{program.map((item, index) => <button type="button" key={item.time} className={programIndex === index ? "active" : ""} onClick={() => goToProgram(index)} aria-label={`${item.title} bölümüne git`} aria-current={programIndex === index ? "step" : undefined} />)}</div>
@@ -107,7 +109,7 @@ export function InvitationExperience() {
       <RsvpSection />
       <MemoriesSection albumUrl={albumUrl} />
 
-      <footer><p className="eyebrow">24 Ekim 2026</p><h2>Özdil <i>&amp;</i> Hüseyin</h2><p>Bu özel günümüzde yanımızda olmanız dileğiyle.</p><a href="#" aria-label="Sayfanın başına dön">Yukarı dön ↑</a></footer>
+      <footer><p className="eyebrow">24 Ekim 2026</p><h2>Özdil <i>&amp;</i> Hüseyin</h2><p>Bu özel günümüzde yanımızda olmanız dileğiyle.</p><a href="#ana-icerik" aria-label="Sayfanın başına dön">Yukarı dön ↑</a></footer>
     </main>
     </>
   );
