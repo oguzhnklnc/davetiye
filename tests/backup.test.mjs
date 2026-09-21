@@ -46,6 +46,21 @@ test("başka siteye ait veya zararlı içerikli yedek reddedilir", () => {
   assert.throws(() => validateBackup({ ...backup, rsvps: [backup.rsvps[0], backup.rsvps[0]] }), /geçersiz/);
   assert.throws(() => validateBackup({ ...backup, rsvps: [{ ...backup.rsvps[0], guest_count: 0 }] }), /geçersiz/);
   assert.throws(() => validateBackup({ ...backup, settings: [{ key: "admin_session_version", value: "secret", updated_at: "2026-09-20T11:15:00.000Z" }] }), /geçersiz/);
+  assert.throws(() => validateBackup({ ...backup, settings: [{ key: "operations_checklist", value: '{"bilinmeyen_madde":true}', updated_at: "2026-09-20T11:15:00.000Z" }] }), /geçersiz/);
+});
+
+test("eski kontrol listeli yedekler yeni maddelerle uyumlu biçimde açılır", () => {
+  const backup = sample();
+  const checklist = JSON.parse(backup.settings.find((item) => item.key === "operations_checklist").value);
+  assert.deepEqual(checklist, {
+    maps_checked: true,
+    qr_checked: false,
+    calendar_checked: false,
+    live_forms_checked: false,
+    iphone_safari_checked: false,
+    android_chrome_checked: false,
+    second_device_login_checked: false,
+  });
 });
 
 test("yedek dışa aktarma ve geri yükleme kayıpsız ve tekrar çalıştırılabilir", async (t) => {

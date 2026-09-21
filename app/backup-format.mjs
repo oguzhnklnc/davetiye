@@ -1,3 +1,5 @@
+import { MANUAL_CHECKLIST_KEYS } from "./operations.mjs";
+
 export const BACKUP_LIMIT = 5 * 1024 * 1024;
 export const BACKUP_SITE = "ozdil-huseyin-20261024";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -40,10 +42,9 @@ function checklist(value) {
   text(value, 2, 500);
   let parsed;
   try { parsed = JSON.parse(value); } catch { fail(); }
-  const keys = ["maps_checked", "qr_checked", "second_device_login_checked"];
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || Object.keys(parsed).some((key) => !keys.includes(key))) fail();
-  if (keys.some((key) => typeof parsed[key] !== "boolean")) fail();
-  return JSON.stringify(Object.fromEntries(keys.map((key) => [key, parsed[key]])));
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || Object.keys(parsed).some((key) => !MANUAL_CHECKLIST_KEYS.includes(key))) fail();
+  if (Object.values(parsed).some((item) => typeof item !== "boolean")) fail();
+  return JSON.stringify(Object.fromEntries(MANUAL_CHECKLIST_KEYS.map((key) => [key, parsed[key] === true])));
 }
 
 export function validateBackup(value) {
