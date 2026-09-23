@@ -28,9 +28,12 @@ test("davetiyeyi sunucu tarafında doğru içerikle oluşturur", async () => {
   assert.match(html, /<main id="ana-icerik">/);
   assert.match(html, /aria-pressed="true"/);
   assert.match(html, /aria-current="step"/);
+  assert.match(html, /<audio[^>]*src="\/wedding-music\.mp3"[^>]*preload="none"[^>]*loop/);
+  assert.match(html, /aria-label="Müziği başlat"[^>]*aria-pressed="false"/);
   assert.match(html, /<label[^>]*for="memory-name"[^>]*>Adınız<\/label>/);
   assert.match(html, /<label[^>]*for="memory-url"[^>]*>Google Fotoğraflar veya Drive bağlantısı<\/label>/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape/i);
+  await access(new URL("../public/wedding-music.mp3", import.meta.url));
 });
 
 test("üretim ayarlarını ve gizli değer şablonunu korur", async () => {

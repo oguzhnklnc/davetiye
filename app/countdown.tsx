@@ -33,7 +33,7 @@ export function Countdown({ target }: { target: string }) {
     <div className="countdown" role="timer" aria-label="Düğüne kalan süre" aria-live="off">
       {values.map(([value, label]) => (
         <div className="countdown-item" key={label}>
-          <strong>{String(value).padStart(2, "0")}</strong>
+          <strong suppressHydrationWarning>{String(value).padStart(2, "0")}</strong>
           <span>{label}</span>
         </div>
       ))}

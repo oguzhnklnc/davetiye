@@ -11,6 +11,15 @@ a { color: inherit; }
 .skip-link:focus { transform: translateY(0); }
 .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 :where(a, button, input, textarea, select, [tabindex]):focus-visible { outline: 3px solid #147bb8; outline-offset: 3px; }
+.wedding-music { position: fixed; z-index: 100; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); }
+.wedding-music audio { display: none; }
+.music-control { min-width: 3.25rem; height: 3.25rem; display: inline-flex; align-items: center; justify-content: center; gap: .55rem; border: 1px solid rgba(239,190,84,.68); border-radius: 999px; padding: 0 .92rem; color: #fff9ec; background: rgba(82,24,39,.94); box-shadow: 0 .55rem 1.5rem rgba(45,25,15,.2); backdrop-filter: blur(8px); cursor: pointer; transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease; }
+.music-control:hover { transform: translateY(-2px); background: rgba(118,40,61,.98); box-shadow: 0 .7rem 1.8rem rgba(45,25,15,.26); }
+.music-control:disabled { cursor: default; opacity: .55; }
+.music-control:disabled:hover { transform: none; }
+.music-symbol { width: 1.15rem; color: var(--gold); font-family: Georgia, "Times New Roman", serif; font-size: 1.18rem; font-weight: 700; line-height: 1; text-align: center; }
+.music-control.playing .music-symbol { font-family: var(--font-geist), Arial, sans-serif; font-size: .72rem; letter-spacing: -.08em; }
+.music-label { font-size: .72rem; font-weight: 650; letter-spacing: .04em; white-space: nowrap; }
 .hero { position: relative; min-height: 100svh; display: grid; place-items: center; overflow: hidden; padding: 3rem 1.25rem; color: #fff9ec; background: radial-gradient(circle at 50% 18%, rgba(255,255,255,.08), transparent 35%), linear-gradient(155deg, #843249 0%, var(--wine) 52%, var(--wine-dark) 100%); }
 .grain { position: absolute; inset: 0; opacity: .36; background-image: radial-gradient(rgba(255,255,255,.38) .7px, transparent .7px); background-size: 34px 34px; mask-image: linear-gradient(to bottom, #000, transparent 90%); }
 .hero-leaf { position: absolute; width: 130px; height: 45px; border: 1px solid rgba(211,160,58,.35); border-radius: 100% 0 100% 0; transform: rotate(-18deg); }
@@ -268,6 +277,8 @@ th { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transfo
 }
 
 @media (max-width: 430px) {
+  .music-control { width: 3.25rem; padding: 0; }
+  .music-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .section { padding-inline: .85rem; }
   .info-card, .venue-body { padding-inline: 1.1rem; }
   .button-row { padding-inline: 1.1rem; }

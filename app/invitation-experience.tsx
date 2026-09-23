@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { Countdown } from "./countdown";
 import { useFormRequest } from "./use-form-request";
 import { fallbackWeather, fetchLiveWeather } from "./weather.mjs";
+import { WeddingMusic } from "./wedding-music";
 
 const address = "Bahçelievler, Süleyman Demirel Caddesi No: 81, 32040 Merkez/Isparta";
 const mapsQuery = encodeURIComponent(`Barida Hotel, ${address}`);
@@ -62,6 +63,7 @@ export function InvitationExperience() {
   return (
     <>
     <a className="skip-link" href="#ana-icerik">Ana içeriğe geç</a>
+    <WeddingMusic />
     <main id="ana-icerik">
       <section className="hero" aria-labelledby="couple-names">
         <div className="grain" aria-hidden="true" />
