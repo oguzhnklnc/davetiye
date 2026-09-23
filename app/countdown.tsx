@@ -15,10 +15,9 @@ function getRemaining(target: string): Remaining {
 }
 
 export function Countdown({ target }: { target: string }) {
-  const [remaining, setRemaining] = useState<Remaining>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [remaining, setRemaining] = useState<Remaining>(() => getRemaining(target));
 
   useEffect(() => {
-    setRemaining(getRemaining(target));
     const timer = window.setInterval(() => setRemaining(getRemaining(target)), 1000);
     return () => window.clearInterval(timer);
   }, [target]);
@@ -31,10 +30,10 @@ export function Countdown({ target }: { target: string }) {
   ] as const;
 
   return (
-    <div className="countdown" aria-label="Düğüne kalan süre">
+    <div className="countdown" role="timer" aria-label="Düğüne kalan süre" aria-live="off">
       {values.map(([value, label]) => (
         <div className="countdown-item" key={label}>
-          <strong>{String(value).padStart(2, "0")}</strong>
+          <strong suppressHydrationWarning>{String(value).padStart(2, "0")}</strong>
           <span>{label}</span>
         </div>
       ))}

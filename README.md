@@ -40,6 +40,22 @@ npm run build
 npm test
 ```
 
+Canlı veriye dokunmadan şifreli yedek ve geri yükleme tatbikatı:
+
+```bash
+npm run test:recovery
+```
+
+Acil durum adımları ve yedek saklama sıklığı için [felaket kurtarma prosedürüne](docs/FELAKET-KURTARMA.md) bakın.
+
+Üretim HTTP rotalarını geçici veritabanıyla yük altında doğrulamak için:
+
+```bash
+npm run test:http-load
+```
+
+Senaryo ve kabul ölçütleri [HTTP yük testi belgesinde](docs/HTTP-YUK-TESTI.md) açıklanmıştır.
+
 Veritabanı şeması değiştiğinde:
 
 ```bash

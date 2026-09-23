@@ -8,9 +8,9 @@ test("yalnızca aynı kaynaktan gelen değişiklik isteklerini kabul eder", () =
   assert.equal(isSameOriginRequest(new Request("https://davetiye.test/api/admin/login")), false);
 });
 
-test("beşinci güvenlik olayından sonra 15 dakikalık sınırı uygular", () => {
-  const now = Date.parse("2026-08-17T12:15:00.000Z");
-  const oldest = "2026-08-17T12:05:00.000Z";
-  assert.deepEqual(evaluateRateLimit({ count: 4, oldest, now, limit: 5, windowSeconds: 900 }), { allowed: true, retryAfter: 0, count: 4 });
-  assert.deepEqual(evaluateRateLimit({ count: 5, oldest, now, limit: 5, windowSeconds: 900 }), { allowed: false, retryAfter: 300, count: 5 });
+test("beşinci güvenlik olayından sonra 3 dakikalık sınırı uygular", () => {
+  const now = Date.parse("2026-08-17T12:02:00.000Z");
+  const oldest = "2026-08-17T12:00:00.000Z";
+  assert.deepEqual(evaluateRateLimit({ count: 4, oldest, now, limit: 5, windowSeconds: 180 }), { allowed: true, retryAfter: 0, count: 4 });
+  assert.deepEqual(evaluateRateLimit({ count: 5, oldest, now, limit: 5, windowSeconds: 180 }), { allowed: false, retryAfter: 60, count: 5 });
 });

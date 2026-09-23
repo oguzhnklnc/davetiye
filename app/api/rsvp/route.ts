@@ -1,5 +1,7 @@
 import { ensureSchema, getDatabase } from "@/db/runtime";
-import { getRequestLimit, rateLimitResponse, recordSecurityEvent, rejectCrossOriginRequest } from "@/app/security";
+import { getSubmissionIdentity, rateLimitResponse, rejectCrossOriginRequest } from "@/app/security";
+import { saveSubmission, submissionRetryAfter } from "@/db/save-submission.mjs";
+import { jsonBodyErrorResponse, readJsonBody } from "@/app/request-body.mjs";
 
 const allowedStatuses = new Set(["attending", "maybe", "declined"]);
 
@@ -7,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const originError = rejectCrossOriginRequest(request);
     if (originError) return originError;
-    const body = await request.json() as Record<string, unknown>;
+    const body = await readJsonBody(request, 4_096) as Record<string, unknown>;
     if (body.website) return Response.json({ ok: true });
     const name = String(body.name ?? "").trim().replace(/\s+/g, " ");
     const status = String(body.status ?? "");
@@ -22,14 +24,15 @@ export async function POST(request: Request) {
     if (Date.now() > new Date("2026-10-24T19:00:00+03:00").getTime()) return Response.json({ error: "Katılım bildirimi süresi sona erdi." }, { status: 400 });
     await ensureSchema();
     const db = getDatabase();
-    const duplicate = await db.prepare("SELECT id FROM rsvps WHERE id = ?").bind(submissionId).first<{ id: string }>();
-    if (duplicate) return Response.json({ ok: true, duplicate: true });
-    const limit = await getRequestLimit(request, "rsvp_submitted", 5, 60 * 60);
-    if (!limit.allowed) return rateLimitResponse(limit.retryAfter);
-    await db.prepare("INSERT INTO rsvps (id, name, status, guest_count, note, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(submissionId, name, status, guestCount, note, new Date().toISOString()).run();
-    await recordSecurityEvent("rsvp_submitted", limit.fingerprint);
-    return Response.json({ ok: true });
-  } catch {
+    const identity = await getSubmissionIdentity(request);
+    const result = await saveSubmission(db, { type: "rsvp", id: submissionId, values: [name, status, guestCount, note], fingerprint: identity.fingerprint, networkFingerprint: identity.networkFingerprint });
+    if (result === "limited") return identity.respond(rateLimitResponse(await submissionRetryAfter(db, { type: "rsvp", ...identity })));
+    if (result === "conflict") return identity.respond(Response.json({ error: "Önceki gönderiminiz zaten kaydedilmiş. Değiştirdiğiniz bilgiler kaydedilmedi; düzeltme için düğün sahipleriyle iletişime geçin." }, { status: 409 }));
+    return identity.respond(Response.json({ ok: true, duplicate: result === "duplicate" }));
+  } catch (error) {
+    const bodyError = jsonBodyErrorResponse(error);
+    if (bodyError) return bodyError;
+    console.error("rsvp_submission_failed");
     return Response.json({ error: "Katılım bildirimi kaydedilemedi. Lütfen yeniden deneyin." }, { status: 500 });
   }
 }

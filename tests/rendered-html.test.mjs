@@ -2,8 +2,6 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-const root = new URL("../", import.meta.url);
-
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
@@ -26,7 +24,16 @@ test("davetiyeyi sunucu tarafında doğru içerikle oluşturur", async () => {
   assert.match(html, /Barida Hotel/);
   assert.match(html, /Düğün Davetiyesi/);
   assert.match(html, /yalnızca düğün organizasyonu ve katılım planlaması amacıyla kullanılacaktır/);
+  assert.match(html, /href="#ana-icerik"[^>]*>Ana içeriğe geç/);
+  assert.match(html, /<main id="ana-icerik">/);
+  assert.match(html, /aria-pressed="true"/);
+  assert.match(html, /aria-current="step"/);
+  assert.match(html, /<audio[^>]*src="\/wedding-music\.mp3"[^>]*preload="none"[^>]*loop/);
+  assert.match(html, /aria-label="Müziği başlat"[^>]*aria-pressed="false"/);
+  assert.match(html, /<label[^>]*for="memory-name"[^>]*>Adınız<\/label>/);
+  assert.match(html, /<label[^>]*for="memory-url"[^>]*>Google Fotoğraflar veya Drive bağlantısı<\/label>/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape/i);
+  await access(new URL("../public/wedding-music.mp3", import.meta.url));
 });
 
 test("üretim ayarlarını ve gizli değer şablonunu korur", async () => {
